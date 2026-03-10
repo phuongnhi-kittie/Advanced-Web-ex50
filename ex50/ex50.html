@@ -1,0 +1,100 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<div class="container">
+  <h1>Book Management System</h1>
+  
+  <!-- Error/Success Message -->
+  <div *ngIf="message" class="message" [ngClass]="{'error': isError, 'success': !isError}">
+    {{ message }}
+  </div>
+
+  <!-- Book Form -->
+  <div class="form-container">
+    <h2>{{ isEditing ? 'Edit Book' : 'Add New Book' }}</h2>
+    <form #bookForm="ngForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" [(ngModel)]="currentBook.title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="author">Author:</label>
+        <input type="text" id="author" name="author" [(ngModel)]="currentBook.author" required>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" [(ngModel)]="currentBook.price" required min="0">
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" [(ngModel)]="currentBook.description" required rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="image">Image:</label>
+        <input type="file" id="image" name="image" (change)="onFileSelected($event)" accept="image/*">
+        <span *ngIf="currentBook.image" class="filename">Current: {{ currentBook.image }}</span>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="!bookForm.valid">
+          {{ isEditing ? 'Update Book' : 'Add Book' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="resetForm()" *ngIf="isEditing">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Books List -->
+  <div class="table-container">
+    <h2><mat-icon style="color:rgb(255, 217, 0)">book</mat-icon>Books List</h2>
+    
+    <!-- Debug Info -->
+    <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-family: monospace;">
+      <strong>Debug Info:</strong><br>
+      Books array length: {{ books?.length }}<br>
+    </div>
+    
+    <div *ngIf="books.length === 0" class="no-data">No books available. Add your first book!</div>
+    
+    <table *ngIf="books.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Image</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Price</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let book of books">
+          <td>{{ book.id }}</td>
+          <td>
+            <img *ngIf="book.image" [src]="'/book_img/' + book.image" 
+                 [alt]="book.title" class="book-image" 
+                 (error)="onImageError($event)">
+            <span *ngIf="!book.image">No image</span>
+          </td>
+          <td>{{ book.title }}</td>
+          <td>{{ book.author }}</td>
+          <td>{{ book.price | currency:'USD' }}</td>
+          <td>{{ book.description }}</td>
+          <td class="actions">
+            <button class="btn btn-edit" (click)="editBook(book)" title="Edit">
+              <mat-icon >edit</mat-icon>Edit
+            </button>
+            <button class="btn btn-delete" (click)="deleteBook(book.id)" title="Delete">
+              <mat-icon >delete</mat-icon>Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
